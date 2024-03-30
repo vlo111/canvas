@@ -1,27 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const { canvas, context: ctx } = getCanvas2DContext();
+    const { canvas, context } = getCanvas2DContext();
     let shapes = [];
     let selectedShape = null;
     let dragStartX = 0, dragStartY = 0;
 
     const drawShapes = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        context.clearRect(0, 0, canvas.width, canvas.height);
         shapes.forEach(shape => {
             switch (shape.type) {
                 case 'circle':
-                    drawCircle(ctx, shape.x, shape.y, shape.size / 2);
+                    drawCircle(context, shape.x, shape.y, shape.size / 2);
                     break;
                 case 'square':
-                    drawSquare(ctx, shape.x, shape.y, shape.size);
+                    drawSquare(context, shape.x, shape.y, shape.size);
                     break;
                 case 'triangle':
-                    drawTriangle(ctx, shape.x, shape.y, shape.size);
+                    drawTriangle(context, shape.x, shape.y, shape.size);
                     break;
                 case 'hexagon':
-                    drawHexagon(ctx, shape.x, shape.y, shape.size);
+                    drawHexagon(context, shape.x, shape.y, shape.size);
                     break;
             }
-            drawFrame(ctx, shape.x, shape.y, shape.size);
+            drawFrame(context, shape.x, shape.y, shape.size, shape.type);
         });
     };
 
@@ -32,27 +32,30 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const drawSquareInCentre = () => {
-        const size = Math.min(canvas.width, canvas.height) / 4;
+        const size = Math.min(canvas.width, canvas.height) / 5;
         shapes.push({ type: 'square', x: canvas.width / 2, y: canvas.height / 2, size });
         drawShapes();
     };
 
     const drawTriangleInCentre = () => {
-        const size = Math.min(canvas.width, canvas.height) / 3;
+        const size = Math.min(canvas.width, canvas.height) / 5;
         shapes.push({ type: 'triangle', x: canvas.width / 2, y: canvas.height / 2, size });
+
         drawShapes();
     };
 
     const drawHexagonInCentre = () => {
-        const size = Math.min(canvas.width, canvas.height) / 4;
+        const size = Math.min(canvas.width, canvas.height) / 9;
         shapes.push({ type: 'hexagon', x: canvas.width / 2, y: canvas.height / 2, size });
         drawShapes();
     };
 
-    document.getElementById("drawCircleButton").addEventListener("click", drawCircleInCentre);
-    document.getElementById("drawSquareButton").addEventListener("click", drawSquareInCentre);
-    document.getElementById("drawTriangleButton").addEventListener("click", drawTriangleInCentre);
-    document.getElementById("drawHexagonButton").addEventListener("click", drawHexagonInCentre);
+    const handleShapeHandleClick = (drawFunction) => drawFunction();
+
+    document.getElementById("drawCircleHandle").addEventListener("click", () => handleShapeHandleClick(drawCircleInCentre));
+    document.getElementById("drawSquareHandle").addEventListener("click", () => handleShapeHandleClick(drawSquareInCentre));
+    document.getElementById("drawTriangleHandle").addEventListener("click", () => handleShapeHandleClick(drawTriangleInCentre));
+    document.getElementById("drawHexagonHandle").addEventListener("click", () => handleShapeHandleClick(drawHexagonInCentre));
 
     const onMouseMove = (event) => {
         if (selectedShape) {
@@ -94,18 +97,18 @@ const getCanvas2DContext = () => {
     return { canvas, context: canvas.getContext("2d") };
 };
 
-const drawCircle = (ctx, x, y, radius, color = '#a8b6fb') => {
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.closePath();
+const drawCircle = (context, x, y, radius, color = '#a8b6fb') => {
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2);
+    context.fillStyle = color;
+    context.fill();
+    context.closePath();
 };
 
-const drawSquare = (ctx, x, y, side, color = '#a8b6fb') => {
+const drawSquare = (context, x, y, side, color = '#a8b6fb') => {
     const halfSide = side / 2;
-    ctx.fillStyle = color;
-    ctx.fillRect(x - halfSide, y - halfSide, side, side);
+    context.fillStyle = color;
+    context.fillRect(x - halfSide, y - halfSide, side, side);
 };
 
 const initCanvasSize = (canvas) => {
@@ -114,34 +117,70 @@ const initCanvasSize = (canvas) => {
     canvas.height = h / (h < 800 ? 1.5 : 1.2);
 };
 
-const drawTriangle = (ctx, x, y, side, color = '#a8b6fb') => {
+const drawTriangle = (context, x, y, side, color = '#a8b6fb') => {
     const height = Math.sqrt(3) * side / 2;
-    ctx.beginPath();
-    ctx.moveTo(x, y - height / 2);
-    ctx.lineTo(x - side / 2, y + height / 2);
-    ctx.lineTo(x + side / 2, y + height / 2);
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.fill();
+    context.beginPath();
+    context.moveTo(x, y - height / 2);
+    context.lineTo(x - side / 2, y + height / 2);
+    context.lineTo(x + side / 2, y + height / 2);
+    context.closePath();
+    context.fillStyle = color;
+    context.fill();
 };
 
-const drawHexagon = (ctx, x, y, side, color = '#a8b6fb') => {
-    ctx.beginPath();
-    ctx.moveTo(x + side * Math.cos(0), y + side * Math.sin(0));
+const drawHexagon = (context, x, y, side, color = '#a8b6fb') => {
+    context.beginPath();
+    context.moveTo(x + side * Math.cos(0), y + side * Math.sin(0));
     for (let i = 1; i <= 6; i++) {
-        ctx.lineTo(x + side * Math.cos(i * 2 * Math.PI / 6), y + side * Math.sin(i * 2 * Math.PI / 6));
+        context.lineTo(x + side * Math.cos(i * 2 * Math.PI / 6), y + side * Math.sin(i * 2 * Math.PI / 6));
     }
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.fill();
+    context.closePath();
+    context.fillStyle = color;
+    context.fill();
 };
 
-const drawFrame = (ctx, x, y, size) => {
-    const halfSize = size / 2;
-    ctx.strokeStyle = '#5900EB';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x - halfSize, y - halfSize, size, size);
+const drawFrame = (context, x, y, size, shapeType) => {
+    let frameX, frameY, frameWidth, frameHeight;
+
+    if (shapeType === 'circle') {
+        frameX = x - size / 2;
+        frameY = y - size / 2;
+        frameWidth = size;
+        frameHeight = size;
+    } else if (shapeType === 'square') {
+        frameX = x - size / 2;
+        frameY = y - size / 2;
+        frameWidth = size;
+        frameHeight = size;
+    } else if (shapeType === 'triangle') {
+        const halfSide = size / 2;
+        const height = Math.sqrt(3) * halfSide;
+        const minX = x - halfSide;
+        const maxX = x + halfSide;
+        const minY = y - height / 2;
+        const maxY = y;
+        frameX = minX;
+        frameY = minY;
+        frameWidth = maxX - minX;
+        frameHeight = maxY - minY + height / 2;
+    } else if (shapeType === 'hexagon') {
+        const halfSide = size / 2;
+        const height = Math.sqrt(3) * halfSide;
+        const minX = x + size * Math.cos(3 * 2 * Math.PI / 6);
+        const maxX = x + size * Math.cos(6 * 2 * Math.PI / 6);
+        const minY = y - height;
+        const maxY = y + height / 2;
+        frameX = minX;
+        frameY = minY;
+        frameWidth = maxX - minX;
+        frameHeight = maxY - minY + height / 2;
+    }
+
+    context.strokeStyle = '#5900EB';
+    context.lineWidth = 1;
+    context.strokeRect(frameX, frameY, frameWidth, frameHeight);
 };
+
 
 const isPointInsideShape = (x, y, shape) => {
     const halfSize = shape.size / 2;
