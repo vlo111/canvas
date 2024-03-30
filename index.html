@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Toolbar and Responsive Canvas</title>
+    <link href="assets/styles.css" rel="stylesheet">
+</head>
+<body>
+<main>
+    <div class="container">
+        <aside>
+            <div class="toolbar">
+                <p>Basic Shapes and Lines</p>
+                <div class="card">
+                    <div id="drawCircleButton" class="thumbnail">
+                        <img alt="triangle" src="assets/icons/circle.svg" />
+                    </div>
+                    <div id="drawSquareButton" class="thumbnail">
+                        <img alt="triangle" src="assets/icons/square.svg" />
+                    </div>
+                    <div id="drawTriangleButton" class="thumbnail">
+                        <img alt="triangle" src="assets/icons/triangle.svg" />
+                    </div>
+                    <div id="drawHexagonButton" class="thumbnail">
+                        <img alt="triangle" src="assets/icons/hexagon.svg" />
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <section id="canvas-container">
+            <canvas id="canvas"></canvas>
+            <p>This is a responsive canvas.</p>
+        </section>
+    </div>
+</main>
+
+<script src="script.js" ></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+:root {
+    --bg: #f4f5fd;
+    --container-bg: #ffffff;
+    --text-color: #6a6a9f;
+    --border: #cfe2ff;
+    --blue-50: #f6f7ff;
+    --blue-100: #eceefe;
+    --blue-200: #d7dcfd;
+    --blue-400: #a8b6fb;
+    --blue-600: #6983df;
+    --blue-800: #2e448e;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: "Open Sans", sans-serif;
+    height: 100%;
+    width: 100%;
+}
+
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text-color);
+}
+
+aside {
+    background: var(--container-bg);
+    border: 1px dashed var(--border);
+    border-radius: 5px;
+    width: 22rem;
+}
+
+section {
+    border: 1px dashed var(--border);
+    background: var(--container-bg);
+    padding: 2rem;
+    border-radius: 5px;
+}
+
+section canvas {
+    border: 1px dashed var(--border);
+    background: var(--bg);
+    border-radius: 5px;
+}
+
+.container {
+    display: flex;
+    gap: 1rem;
+}
+
+.toolbar {
+    padding: 2rem 1rem;
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
+    user-select: none;
+}
+
+.thumbnail {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+    cursor: pointer;
+    background: var(--blue-50);
+    max-height: 70px;
+    border: 1px solid var(--border);
+    border-radius: .5rem;
+    min-height: 2.375rem;
+    width: 2.375rem;
+}
+
+.thumbnail:hover {
+    background: var(--blue-100);
+}
+
+.thumbnail:active {
+    background: var(--blue-200);
+
+    img {
+        scale: 1.1;
+    }
+}
+
+.thumbnail:focus {
+    background-color: #edf0f1;
+    box-shadow: 0 0 0 .1rem #d9dfe1;
+    border-color: transparent;
+}
+
+.thumbnail img {
+    height: 44px;
+    width: 44px;
+}
+
+@media only screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    aside {
+        flex-direction: row;
+        width: 100%;
+        height: 4rem;
+    }
+}

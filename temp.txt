@@ -1,0 +1,64 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const { canvas, context: ctx } = getCanvas2DContext();
+
+    const drawCircleInCentre = () => drawCircle(ctx, canvas.width / 2, canvas.height / 2, Math.min(canvas.width, canvas.height) / 5);
+    const drawSquareInCentre = () => drawSquare(ctx, canvas.width / 2, canvas.height / 2, Math.min(canvas.width, canvas.height) / 4);
+    const drawTriangleInCentre = () => drawTriangle(ctx, canvas.width / 2, canvas.height / 2, Math.min(canvas.width, canvas.height) / 3);
+
+    /** Event listeners for toolbar buttons */
+    document.getElementById("drawCircleButton").addEventListener("click", drawCircleInCentre);
+    document.getElementById("drawSquareButton").addEventListener("click", drawSquareInCentre);
+    document.getElementById("drawTriangleButton").addEventListener("click", drawTriangleInCentre);
+});
+
+const getCanvas2DContext = () => {
+    const canvas = document.getElementById("canvas");
+
+    initCanvasSize(canvas);
+
+    return {canvas, context: canvas.getContext("2d")};
+};
+
+const drawCircle = (ctx, x, y, radius, color = '#a8b6fb') => {
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.closePath();
+};
+
+const drawSquare = (ctx, x, y, side, color = '#a8b6fb') => {
+    const halfSide = side / 2;
+    ctx.fillStyle = color;
+    ctx.fillRect(x - halfSide, y - halfSide, side, side);
+};
+
+const initCanvasSize = (canvas) => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    canvas.width = w / (w < 1200 ? 2.5 : 1.5);
+    canvas.height = h / (h < 800 ? 1.5 : 1.2);
+}
+
+const drawTriangle = (ctx, x, y, side, color = '#a8b6fb') => {
+    const height = Math.sqrt(3) * side / 2;
+    ctx.beginPath();
+    ctx.moveTo(x, y - height / 2);
+    ctx.lineTo(x - side / 2, y + height / 2);
+    ctx.lineTo(x + side / 2, y + height / 2);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    drawFrame(ctx, x, y, side);
+
+};
+
+const drawFrame = (ctx, x, y, size) => {
+    const halfSize = size / 2;
+    ctx.strokeStyle = '#5900EB';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x - halfSize, y - halfSize, size, size);
+};
