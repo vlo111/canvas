@@ -6,8 +6,7 @@ const ShapeType = {
 };
 
 class Shape {
-    constructor(type, x, y, size, color) {
-        this.type = type;
+    constructor(x, y, size, color) {
         this.x = x;
         this.y = y;
         this.size = size;
@@ -15,37 +14,48 @@ class Shape {
     }
 
     draw(context) {
-        context.fillStyle = this.color;
-        switch (this.type) {
-            case ShapeType.CIRCLE:
-                this.drawCircle(context);
-                break;
-            case ShapeType.SQUARE:
-                this.drawSquare(context);
-                break;
-            case ShapeType.TRIANGLE:
-                this.drawTriangle(context);
-                break;
-            case ShapeType.HEXAGON:
-                this.drawHexagon(context);
-                break;
-        }
+        // Base draw method, to be overridden by subclasses
+    }
+}
+
+class Circle extends Shape {
+    constructor(x, y, size, color) {
+        super(x, y, size, color);
+        this.type = ShapeType.CIRCLE;
     }
 
-    drawCircle(context) {
+    draw(context) {
+        context.fillStyle = this.color;
         const radius = this.size / 2;
         context.beginPath();
         context.arc(this.x, this.y, radius, 0, Math.PI * 2);
         context.fill();
         context.closePath();
     }
+}
 
-    drawSquare(context) {
+class Square extends Shape {
+    constructor(x, y, size, color) {
+        super(x, y, size, color);
+        this.type = ShapeType.SQUARE;
+    }
+
+    draw(context) {
+        context.fillStyle = this.color;
         const halfSize = this.size / 2;
         context.fillRect(this.x - halfSize, this.y - halfSize, this.size, this.size);
     }
+}
 
-    drawTriangle(context) {
+class Triangle extends Shape {
+    constructor(x, y, size, color) {
+        super(x, y, size, color);
+        this.type = ShapeType.TRIANGLE;
+    }
+
+    draw(context) {
+        context.fillStyle = this.color;
+
         const height = Math.sqrt(3) * this.size / 2;
         context.beginPath();
         context.moveTo(this.x, this.y - height / 2);
@@ -54,12 +64,27 @@ class Shape {
         context.closePath();
         context.fill();
     }
+}
 
-    drawHexagon(context) {
+class Hexagon extends Shape {
+    constructor(x, y, size, color) {
+        super(x, y, size, color);
+        this.type = ShapeType.HEXAGON;
+    }
+
+    draw(context) {
+        context.fillStyle = this.color;
+        const angleStep = Math.PI / 3;
         context.beginPath();
-        context.moveTo(this.x + this.size * Math.cos(0), this.y + this.size * Math.sin(0));
-        for (let i = 1; i <= 6; i++) {
-            context.lineTo(this.x + this.size * Math.cos(i * 2 * Math.PI / 6), this.y + this.size * Math.sin(i * 2 * Math.PI / 6));
+        for (let i = 0; i < 6; i++) {
+            const angle = i * angleStep;
+            const px = this.x + this.size * Math.cos(angle);
+            const py = this.y + this.size * Math.sin(angle);
+            if (i === 0) {
+                context.moveTo(px, py);
+            } else {
+                context.lineTo(px, py);
+            }
         }
         context.closePath();
         context.fill();
@@ -195,7 +220,6 @@ class Canvas {
             const maxY = shape.y + height;
 
             return x >= minX && x <= maxX && y >= minY && y <= maxY;
-
         }
 
         return x >= shape.x - halfSize && x <= shape.x + halfSize && y >= shape.y - halfSize && y <= shape.y + halfSize;
@@ -217,6 +241,12 @@ class UI {
         this.bindShapeHandlers();
         this.bindColorPicker();
         this.bindColorOptions();
+        this.shapeConstructors = {
+            [ShapeType.CIRCLE]: Circle,
+            [ShapeType.SQUARE]: Square,
+            [ShapeType.TRIANGLE]: Triangle,
+            [ShapeType.HEXAGON]: Hexagon
+        };
     }
 
     bindShapeHandlers() {
@@ -240,8 +270,13 @@ class UI {
 
     handleShapeClick(event) {
         const { shape, sizeScale } = event.currentTarget.dataset;
-        const { width, height } = this.canvas.canvasElement;
-        this.canvas.addShape(new Shape(shape, width / 2, height / 2, Math.min(width, height) / parseInt(sizeScale), this.canvas.drawingColor));
+        const { canvasElement: { width, height }, drawingColor } = this.canvas;
+
+        const ShapeConstructor = this.shapeConstructors[shape];
+        if (ShapeConstructor) {
+            const newShape = new ShapeConstructor(width / 2, height / 2, Math.min(width, height) / parseInt(sizeScale), drawingColor);
+            this.canvas.addShape(newShape);
+        }
     }
 
     handleColorChange(event) {
