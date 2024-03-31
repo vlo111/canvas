@@ -9,6 +9,9 @@
     --blue-400: #a8b6fb;
     --blue-600: #6983df;
     --blue-800: #2e448e;
+    --spacing-4: 0.4rem;
+    --radius-4: 4px;
+    --backgrounds-tint-5: #d4d4d4;
 }
 
 body, html {
@@ -87,7 +90,7 @@ section canvas {
 .thumbnail:active {
     background: var(--blue-200);
 
-    img {
+    svg {
         scale: 1.1;
     }
 }
@@ -101,6 +104,32 @@ section canvas {
 .thumbnail img {
     height: 44px;
     width: 44px;
+}
+
+.colors {
+    display: flex;
+    flex-direction: column;
+    margin: 2rem 0;
+}
+
+.color-picker {
+    margin-bottom: 1rem;
+}
+
+.color-options {
+    gap: var(--spacing-4);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.color-option {
+    width: 30px;
+    height: 30px;
+    margin-right: 5px;
+    cursor: pointer;
+    border: 1px solid var(--backgrounds-tint-5);
+    border-radius: var(--radius-4);
 }
 
 @media only screen and (max-width: 768px) {

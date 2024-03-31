@@ -1,12 +1,14 @@
 class Shape {
-    constructor(type, x, y, size) {
+    constructor(type, x, y, size, color) {
         this.type = type;
         this.x = x;
         this.y = y;
         this.size = size;
+        this.color = color;
     }
 
     draw(context) {
+        context.fillStyle = this.color;
         switch (this.type) {
             case 'circle':
                 this.drawCircle(context);
@@ -27,14 +29,12 @@ class Shape {
         const radius = this.size / 2;
         context.beginPath();
         context.arc(this.x, this.y, radius, 0, Math.PI * 2);
-        context.fillStyle = '#a8b6fb';
         context.fill();
         context.closePath();
     }
 
     drawSquare(context) {
         const halfSize = this.size / 2;
-        context.fillStyle = '#a8b6fb';
         context.fillRect(this.x - halfSize, this.y - halfSize, this.size, this.size);
     }
 
@@ -45,7 +45,6 @@ class Shape {
         context.lineTo(this.x - this.size / 2, this.y + height / 2);
         context.lineTo(this.x + this.size / 2, this.y + height / 2);
         context.closePath();
-        context.fillStyle = '#a8b6fb';
         context.fill();
     }
 
@@ -56,12 +55,10 @@ class Shape {
             context.lineTo(this.x + this.size * Math.cos(i * 2 * Math.PI / 6), this.y + this.size * Math.sin(i * 2 * Math.PI / 6));
         }
         context.closePath();
-        context.fillStyle = '#a8b6fb';
         context.fill();
     }
 }
 
-// Canvas Module
 class Canvas {
     constructor(canvasId) {
         this.canvasElement = document.getElementById(canvasId);
@@ -172,13 +169,23 @@ class Canvas {
         const halfSize = shape.size / 2;
         return x >= shape.x - halfSize && x <= shape.x + halfSize && y >= shape.y - halfSize && y <= shape.y + halfSize;
     }
+
+    setDrawingColor(color) {
+        this.drawingColor = color;
+        const icons = document.querySelectorAll("path, circle");
+
+        icons.forEach(i => {
+            i.style.fill = color
+        });
+    }
 }
 
-// UI Module
 class UI {
     constructor(canvasId) {
         this.canvas = new Canvas(canvasId);
         this.bindShapeHandlers();
+        this.bindColorPicker();
+        this.bindColorOptions();
     }
 
     bindShapeHandlers() {
@@ -188,15 +195,35 @@ class UI {
         });
     }
 
+    bindColorPicker() {
+        const colorPicker = document.getElementById('colorPicker');
+        colorPicker.addEventListener('change', this.handleColorChange.bind(this));
+    }
+
+    bindColorOptions() {
+        const colorOptions = document.querySelectorAll('.color-option');
+        colorOptions.forEach(option => {
+            option.addEventListener('click', this.handleColorOptionClick.bind(this));
+        });
+    }
+
     handleShapeClick(event) {
         const { shape, sizeScale } = event.currentTarget.dataset;
         const { width, height } = this.canvas.canvasElement;
+        this.canvas.addShape(new Shape(shape, width / 2, height / 2, Math.min(width, height) / parseInt(sizeScale), this.canvas.drawingColor));
+    }
 
-        this.canvas.addShape(new Shape(shape, width / 2, height / 2, Math.min(width, height) / parseInt(sizeScale)));
+    handleColorChange(event) {
+        const color = event.target.value;
+        this.canvas.setDrawingColor(color);
+    }
+
+    handleColorOptionClick(event) {
+        const color = event.currentTarget.dataset.color;
+        this.canvas.setDrawingColor(color);
     }
 }
 
-// Initialize UI
 document.addEventListener("DOMContentLoaded", () => {
     new UI('canvas');
 });
