@@ -67,6 +67,7 @@ class Canvas {
         this.selectedShape = null;
         this.dragStartX = 0;
         this.dragStartY = 0;
+        this.drawingColor = '#6A6A9F';
         this.initCanvasSize();
         this.bindEvents();
     }
@@ -116,6 +117,7 @@ class Canvas {
     }
 
     addShape(shape) {
+        shape.color = this.drawingColor;
         this.shapes.push(shape);
         this.drawShapes();
     }
