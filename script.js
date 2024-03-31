@@ -5,23 +5,42 @@ const ShapeType = {
     HEXAGON: 'hexagon'
 };
 
+/**
+ * Base class for all shapes
+ */
 class Shape {
     constructor(x, y, size, color) {
         this.x = x;
         this.y = y;
-        this.size = size;
+        this.size = size; // Size of the shape (e.g., radius, side length)
         this.color = color;
     }
 
     draw(context) {
         // Base draw method, to be overridden by subclasses
     }
+
+    drawFrame(context, frameX, frameY, frameWidth, frameHeight) {
+        // Draw frame
+        context.strokeStyle = '#5900EB';
+        context.lineWidth = 1;
+        context.strokeRect(frameX, frameY, frameWidth, frameHeight);
+
+        // Draw control points for manipulation
+        const controlSize = 10; // Size of control points
+        context.fillStyle = '#5900EB';
+
+        // Draw control points at corners of the frame
+        context.fillRect(frameX - controlSize / 2, frameY - controlSize / 2, controlSize, controlSize); // Top-left
+        context.fillRect(frameX + frameWidth - controlSize / 2, frameY - controlSize / 2, controlSize, controlSize); // Top-right
+        context.fillRect(frameX - controlSize / 2, frameY + frameHeight - controlSize / 2, controlSize, controlSize); // Bottom-left
+        context.fillRect(frameX + frameWidth - controlSize / 2, frameY + frameHeight - controlSize / 2, controlSize, controlSize); // Bottom-right
+    }
 }
 
 class Circle extends Shape {
     constructor(x, y, size, color) {
         super(x, y, size, color);
-        this.type = ShapeType.CIRCLE;
     }
 
     draw(context) {
@@ -32,12 +51,23 @@ class Circle extends Shape {
         context.fill();
         context.closePath();
     }
+
+    drawFrame(context) {
+        const {x, y, size, type} = this;
+
+        let frameX, frameY, frameWidth, frameHeight;
+
+        // Calculate frames for Circle
+        frameX = x - size / 2;
+        frameY = y - size / 2;
+        frameWidth = frameHeight = size;
+        super.drawFrame(context, frameX, frameY, frameWidth, frameHeight);
+    }
 }
 
 class Square extends Shape {
     constructor(x, y, size, color) {
         super(x, y, size, color);
-        this.type = ShapeType.SQUARE;
     }
 
     draw(context) {
@@ -45,12 +75,23 @@ class Square extends Shape {
         const halfSize = this.size / 2;
         context.fillRect(this.x - halfSize, this.y - halfSize, this.size, this.size);
     }
+
+    drawFrame(context) {
+        const {x, y, size, type} = this;
+
+        let frameX, frameY, frameWidth, frameHeight;
+
+        // Calculate frame for Square
+        frameX = x - size / 2;
+        frameY = y - size / 2;
+        frameWidth = frameHeight = size;
+        super.drawFrame(context, frameX, frameY, frameWidth, frameHeight);
+    }
 }
 
 class Triangle extends Shape {
     constructor(x, y, size, color) {
         super(x, y, size, color);
-        this.type = ShapeType.TRIANGLE;
     }
 
     draw(context) {
@@ -64,12 +105,32 @@ class Triangle extends Shape {
         context.closePath();
         context.fill();
     }
+
+    drawFrame(context) {
+
+        const { x, y, size, type } = this;
+
+        let frameX, frameY, frameWidth, frameHeight;
+
+        // Calculate frame for Circle
+        const halfSide = size / 2;
+        const height = Math.sqrt(3) * halfSide;
+        const minX = x - halfSide;
+        const maxX = x + halfSide;
+        const minY = y - height / 2;
+        const maxY = y;
+        frameX = minX;
+        frameY = minY;
+        frameWidth = maxX - minX;
+        frameHeight = maxY - minY + height / 2;
+
+        super.drawFrame(context, frameX, frameY, frameWidth, frameHeight);
+    }
 }
 
 class Hexagon extends Shape {
     constructor(x, y, size, color) {
         super(x, y, size, color);
-        this.type = ShapeType.HEXAGON;
     }
 
     draw(context) {
@@ -88,6 +149,25 @@ class Hexagon extends Shape {
         }
         context.closePath();
         context.fill();
+    }
+
+    drawFrame(context) {
+        const { x, y, size, type } = this;
+
+        let frameX, frameY, frameWidth, frameHeight;
+
+        const halfSide = size / 2;
+        const height = Math.sqrt(3) * halfSide;
+        const minX = x + size * Math.cos(3 * 2 * Math.PI / 6);
+        const maxX = x + size * Math.cos(6 * 2 * Math.PI / 6);
+        const minY = y - height;
+        const maxY = y + height / 2;
+        frameX = minX;
+        frameY = minY;
+        frameWidth = maxX - minX;
+        frameHeight = maxY - minY + height / 2;
+
+        super.drawFrame(context, frameX, frameY, frameWidth, frameHeight);
     }
 }
 
@@ -129,13 +209,15 @@ class Canvas {
         });
     }
 
+    // Method to handle mouse move event during dragging
     onMouseMove(event) {
         if (this.selectedShape) {
             const mouseX = event.clientX - this.canvasElement.getBoundingClientRect().left;
             const mouseY = event.clientY - this.canvasElement.getBoundingClientRect().top;
+            // Update shape coordinates based on mouse position and drag offsets
             this.selectedShape.x = mouseX - this.dragStartX;
             this.selectedShape.y = mouseY - this.dragStartY;
-            this.drawShapes();
+            this.drawShapes(); // Redraw canvas with updated shapes
         }
     }
 
@@ -148,8 +230,8 @@ class Canvas {
         }
     }
 
+    // Method to add a shape to the canvas
     addShape(shape) {
-        shape.color = this.drawingColor;
         this.shapes.push(shape);
         this.drawShapes();
     }
@@ -158,61 +240,14 @@ class Canvas {
         this.context.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
         this.shapes.forEach(shape => {
             shape.draw(this.context);
-            this.drawFrame(shape);
+            shape.drawFrame(this.context);
         });
-    }
-
-    drawFrame(shape) {
-        const { x, y, size, type } = shape;
-        let frameX, frameY, frameWidth, frameHeight;
-
-        // Calculate frames for shapes
-        if (type === ShapeType.CIRCLE || type === ShapeType.SQUARE) {
-            frameX = x - size / 2;
-            frameY = y - size / 2;
-            frameWidth = frameHeight = size;
-        } else if (type === ShapeType.TRIANGLE) {
-            const halfSide = size / 2;
-            const height = Math.sqrt(3) * halfSide;
-            const minX = x - halfSide;
-            const maxX = x + halfSide;
-            const minY = y - height / 2;
-            const maxY = y;
-            frameX = minX;
-            frameY = minY;
-            frameWidth = maxX - minX;
-            frameHeight = maxY - minY + height / 2;
-        } else if (type === ShapeType.HEXAGON) {
-            const halfSide = size / 2;
-            const height = Math.sqrt(3) * halfSide;
-            const minX = x + size * Math.cos(3 * 2 * Math.PI / 6);
-            const maxX = x + size * Math.cos(6 * 2 * Math.PI / 6);
-            const minY = y - height;
-            const maxY = y + height / 2;
-            frameX = minX;
-            frameY = minY;
-            frameWidth = maxX - minX;
-            frameHeight = maxY - minY + height / 2;
-        }
-
-        // Draw frame
-        this.context.strokeStyle = '#5900EB';
-        this.context.lineWidth = 1;
-        this.context.strokeRect(frameX, frameY, frameWidth, frameHeight);
-
-        // Draw control points
-        const controlSize = 10; // Size of control points
-        this.context.fillStyle = '#5900EB';
-        this.context.fillRect(frameX - controlSize / 2, frameY - controlSize / 2, controlSize, controlSize); // Top-left
-        this.context.fillRect(frameX + frameWidth - controlSize / 2, frameY - controlSize / 2, controlSize, controlSize); // Top-right
-        this.context.fillRect(frameX - controlSize / 2, frameY + frameHeight - controlSize / 2, controlSize, controlSize); // Bottom-left
-        this.context.fillRect(frameX + frameWidth - controlSize / 2, frameY + frameHeight - controlSize / 2, controlSize, controlSize); // Bottom-right
     }
 
     isPointInsideShape(x, y, shape) {
         const halfSize = shape.size / 2;
 
-        if (shape.type === ShapeType.HEXAGON) {
+        if (shape instanceof Hexagon) {
             const height = Math.sqrt(3) * halfSize;
             const minX = shape.x + shape.size * Math.cos(3 * 2 * Math.PI / 6);
             const maxX = shape.x + shape.size * Math.cos(6 * 2 * Math.PI / 6);
@@ -227,14 +262,12 @@ class Canvas {
 
     setDrawingColor(color) {
         this.drawingColor = color;
-        const icons = document.querySelectorAll("path, circle");
-
-        icons.forEach(i => {
-            i.style.fill = color
-        });
     }
 }
 
+/**
+ * // Class for managing user interface interactions
+ */
 class UI {
     constructor(canvasId) {
         this.canvas = new Canvas(canvasId);
@@ -271,7 +304,6 @@ class UI {
     handleShapeClick(event) {
         const { shape, sizeScale } = event.currentTarget.dataset;
         const { canvasElement: { width, height }, drawingColor } = this.canvas;
-
         const ShapeConstructor = this.shapeConstructors[shape];
         if (ShapeConstructor) {
             const newShape = new ShapeConstructor(width / 2, height / 2, Math.min(width, height) / parseInt(sizeScale), drawingColor);
@@ -281,12 +313,23 @@ class UI {
 
     handleColorChange(event) {
         const color = event.target.value;
-        this.canvas.setDrawingColor(color);
+        this.handleSetCanvasDrawingColor(color);
     }
 
     handleColorOptionClick(event) {
-        const color = event.currentTarget.dataset.color;
+        const { color } = event.currentTarget.dataset;
+        this.handleSetCanvasDrawingColor(color);
+    }
+
+    handleSetCanvasDrawingColor(color) {
         this.canvas.setDrawingColor(color);
+
+        // Set Toolbar icons color
+        const icons = document.querySelectorAll("path, circle");
+
+        icons.forEach(i => {
+            i.style.fill = color
+        });
     }
 }
 
