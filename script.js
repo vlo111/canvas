@@ -134,6 +134,7 @@ class Canvas {
         const { x, y, size, type } = shape;
         let frameX, frameY, frameWidth, frameHeight;
 
+        // Calculate frames for shapes
         if (type === 'circle' || type === 'square') {
             frameX = x - size / 2;
             frameY = y - size / 2;
@@ -162,9 +163,18 @@ class Canvas {
             frameHeight = maxY - minY + height / 2;
         }
 
+        // Draw frame
         this.context.strokeStyle = '#5900EB';
         this.context.lineWidth = 1;
         this.context.strokeRect(frameX, frameY, frameWidth, frameHeight);
+
+        // Draw control points
+        const controlSize = 10; // Size of control points
+        this.context.fillStyle = '#5900EB';
+        this.context.fillRect(frameX - controlSize / 2, frameY - controlSize / 2, controlSize, controlSize); // Top-left
+        this.context.fillRect(frameX + frameWidth - controlSize / 2, frameY - controlSize / 2, controlSize, controlSize); // Top-right
+        this.context.fillRect(frameX - controlSize / 2, frameY + frameHeight - controlSize / 2, controlSize, controlSize); // Bottom-left
+        this.context.fillRect(frameX + frameWidth - controlSize / 2, frameY + frameHeight - controlSize / 2, controlSize, controlSize); // Bottom-right
     }
 
     isPointInsideShape(x, y, shape) {
