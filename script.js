@@ -1,3 +1,10 @@
+const ShapeType = {
+    CIRCLE: 'circle',
+    SQUARE: 'square',
+    TRIANGLE: 'triangle',
+    HEXAGON: 'hexagon'
+};
+
 class Shape {
     constructor(type, x, y, size, color) {
         this.type = type;
@@ -10,16 +17,16 @@ class Shape {
     draw(context) {
         context.fillStyle = this.color;
         switch (this.type) {
-            case 'circle':
+            case ShapeType.CIRCLE:
                 this.drawCircle(context);
                 break;
-            case 'square':
+            case ShapeType.SQUARE:
                 this.drawSquare(context);
                 break;
-            case 'triangle':
+            case ShapeType.TRIANGLE:
                 this.drawTriangle(context);
                 break;
-            case 'hexagon':
+            case ShapeType.HEXAGON:
                 this.drawHexagon(context);
                 break;
         }
@@ -135,11 +142,11 @@ class Canvas {
         let frameX, frameY, frameWidth, frameHeight;
 
         // Calculate frames for shapes
-        if (type === 'circle' || type === 'square') {
+        if (type === ShapeType.CIRCLE || type === ShapeType.SQUARE) {
             frameX = x - size / 2;
             frameY = y - size / 2;
             frameWidth = frameHeight = size;
-        } else if (type === 'triangle') {
+        } else if (type === ShapeType.TRIANGLE) {
             const halfSide = size / 2;
             const height = Math.sqrt(3) * halfSide;
             const minX = x - halfSide;
@@ -150,7 +157,7 @@ class Canvas {
             frameY = minY;
             frameWidth = maxX - minX;
             frameHeight = maxY - minY + height / 2;
-        } else if (type === 'hexagon') {
+        } else if (type === ShapeType.HEXAGON) {
             const halfSide = size / 2;
             const height = Math.sqrt(3) * halfSide;
             const minX = x + size * Math.cos(3 * 2 * Math.PI / 6);
@@ -180,7 +187,7 @@ class Canvas {
     isPointInsideShape(x, y, shape) {
         const halfSize = shape.size / 2;
 
-        if (shape.type === 'hexagon') {
+        if (shape.type === ShapeType.HEXAGON) {
             const height = Math.sqrt(3) * halfSize;
             const minX = shape.x + shape.size * Math.cos(3 * 2 * Math.PI / 6);
             const maxX = shape.x + shape.size * Math.cos(6 * 2 * Math.PI / 6);
