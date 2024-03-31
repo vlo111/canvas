@@ -179,6 +179,18 @@ class Canvas {
 
     isPointInsideShape(x, y, shape) {
         const halfSize = shape.size / 2;
+
+        if (shape.type === 'hexagon') {
+            const height = Math.sqrt(3) * halfSize;
+            const minX = shape.x + shape.size * Math.cos(3 * 2 * Math.PI / 6);
+            const maxX = shape.x + shape.size * Math.cos(6 * 2 * Math.PI / 6);
+            const minY = shape.y - height;
+            const maxY = shape.y + height;
+
+            return x >= minX && x <= maxX && y >= minY && y <= maxY;
+
+        }
+
         return x >= shape.x - halfSize && x <= shape.x + halfSize && y >= shape.y - halfSize && y <= shape.y + halfSize;
     }
 
